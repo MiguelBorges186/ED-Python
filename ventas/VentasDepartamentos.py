@@ -1,71 +1,98 @@
-meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+class VentasDepartamentos:
+    def __init__(self):
+        self.meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        self.departamentos = ["Ropa", "Deportes", "Juguetería"]
+        self.ventas = [[0 for _ in range(len(self.departamentos))] for _ in range(12)]
 
-departamentos = ["Ropa", "Deportes", "Juguetería"]
-ventas = [[0 for _ in range(len(departamentos))] for _ in range(12)]
+    def insertar_venta(self, mes, dep, valor):
+        self.ventas[mes][dep] = valor
 
-def agregar_departamento():
-    nuevo = input("Ingresa el nombre del nuevo departamento: ")
-    departamentos.append(nuevo)
-    for fila in ventas:
-        fila.append(0)
-    print(f" Departamento agregado: {nuevo}")
+    def buscar_venta(self, mes, dep):
+        return self.ventas[mes][dep]
 
-def pedir_mes():
-    return int(input("Ingresa el número de mes (1-12): ")) - 1
+    def eliminar_venta(self, mes, dep):
+        self.ventas[mes][dep] = 0
 
-def pedir_departamento():
-    print("Departamentos:")
-    for i, d in enumerate(departamentos):
-        print(f"{i+1}. {d}")
-    return int(input("Elige un departamento: ")) - 1
+    def mostrar_ventas(self):
+        print("\n--- Tabla de Ventas ---")
+        print("Mes\t\t" + "\t".join(self.departamentos))
+        for i in range(12):
+            fila = [str(self.ventas[i][j]) for j in range(len(self.departamentos))]
+            print(f"{self.meses[i]}\t" + "\t\t".join(fila))
 
-def insertar_venta():
-    mes = pedir_mes()
-    dep = pedir_departamento()
-    ventas[mes][dep] = int(input("Ingresa la venta: "))
-    print(" Venta registrada.")
+    def agregar_departamento(self, nombre):
+        nombre = nombre.strip()
+        if not nombre:
+            print(" Nombre inválido.")
+            return
+        if nombre in self.departamentos:
+            print(" Ya existe el departamento:", nombre)
+            return
+        self.departamentos.append(nombre)
+        for fila in self.ventas:
+            fila.append(0)
+        print(f" Departamento agregado: {nombre}")
 
-def buscar_venta():
-    mes = pedir_mes()
-    dep = pedir_departamento()
-    print(f"La venta es: {ventas[mes][dep]}")
 
-def eliminar_venta():
-    mes = pedir_mes()
-    dep = pedir_departamento()
-    ventas[mes][dep] = 0
-    print(" Venta eliminada.")
+def pedir_entero(rango_min, rango_max, prompt=""):
+    while True:
+        try:
+            valor = int(input(prompt))
+            if rango_min <= valor <= rango_max:
+                return valor
+            print(f"Ingresa un número entre {rango_min} y {rango_max}.")
+        except ValueError:
+            print("Ingresa un número válido.")
 
-def mostrar_ventas():
-    print("\n--- Tabla de Ventas ---")
-    print("Mes\t\t" + "\t".join(departamentos))
-    for i in range(12):
-        fila = [str(ventas[i][j]) for j in range(len(departamentos))]
-        print(f"{meses[i]}\t" + "\t\t".join(fila))
+def elegir_mes(app):
+    return pedir_entero(1, 12, "Ingresa el número de mes (1-12): ") - 1
+
+def elegir_dep(app):
+    print("\nDepartamentos:")
+    for i, d in enumerate(app.departamentos, start=1):
+        print(f"{i}. {d}")
+    return pedir_entero(1, len(app.departamentos), "Elige un departamento: ") - 1
+
+ventas = VentasDepartamentos()
 
 while True:
     print("\n--- Menú ---")
-    print("1. Insertar/Actualizar venta")
+    print("1. Insertar venta")
     print("2. Buscar venta")
     print("3. Eliminar venta")
     print("4. Mostrar tabla de ventas")
     print("5. Agregar nuevo departamento")
     print("6. Salir")
-    opcion = int(input("Elige una opción: "))
+
+    opcion = pedir_entero(1, 6, "Elige una opción: ")
 
     if opcion == 1:
-        insertar_venta()
+        mes = elegir_mes(ventas)
+        dep = elegir_dep(ventas)
+        valor = pedir_entero(0, 10**9, "Ingresa la venta: ")
+        ventas.insertar_venta(mes, dep, valor)
+        print(" Venta registrada.")
+
     elif opcion == 2:
-        buscar_venta()
+        mes = elegir_mes(ventas)
+        dep = elegir_dep(ventas)
+        print(f"La venta es: {ventas.buscar_venta(mes, dep)}")
+
     elif opcion == 3:
-        eliminar_venta()
+        mes = elegir_mes(ventas)
+        dep = elegir_dep(ventas)
+        ventas.eliminar_venta(mes, dep)
+        print(" Venta eliminada.")
+
     elif opcion == 4:
-        mostrar_ventas()
+        ventas.mostrar_ventas()
+
     elif opcion == 5:
-        agregar_departamento()
+        nombre = input("Nombre del nuevo departamento: ")
+        ventas.agregar_departamento(nombre)
+
     elif opcion == 6:
         print("Saliendo...")
         break
-    else:
-        print("Opción inválida.")
+
